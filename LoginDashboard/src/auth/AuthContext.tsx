@@ -1,5 +1,5 @@
-import { createContext, useEffect, useState } from "react";
-import { AuthState, User, LoginCredentials, SignupCredentials } from "../types";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { type AuthState, type User, type LoginCredentials, type SignupCredentials } from "../types";
 
 
 interface AuthContextType extends AuthState{
@@ -30,11 +30,11 @@ const getStoredUsers = () : StoredUser[] =>{
 };
 
 //Save users to LocalStorage 
-const saveUsers = (users : StoredUser): void => {
+const saveUsers = (users : StoredUser[]): void => {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 };
 
-//Fake JWT token generator 
+//fakeJWT token generator 
 const fakeJWT = (user: User): string =>{
   const header = btoa(JSON.stringify({ alg:"HS256", typ : "JWT"}));
   const payload = btoa(JSON.stringify({...user,exp:Date.now() + 3600000}));
@@ -79,7 +79,62 @@ useEffect(()=>{
 // Signup Stores user data in localStorage 
 const signup =  async (credentials : SignupCredentials) : Promise<void> => {
     const users = getStoredUsers();
-}
-}
 
+    // check if email already exists
+    const existingUser = users.find((u) => u.email === credentials.email);
+    if(existingUser){
+        throw new Error("Email already registered");
+    }
 
+    // Create new user and store in localStorage
+    const newUser :  StoredUser ={
+        id: Date.now().toString(),
+        name: credentials.name,
+        email: credentials.email,
+        password: credentials.password,
+    };
+    users.push(newUser);
+    saveUsers(users);
+
+    // Auto login after signup
+    const user = {id:newUser.id,name:newUser.name,email:newUser.email};
+    const token = fakeJWT(user);
+    localStorage.setItem(TOKEN_KEY,token);
+    setAuthState({user,token,isAuthenticated: true});
+};
+//Login checks credentials against stored users and generates token
+const login = async (credentials : LoginCredentials) : Promise<void> =>{
+    const users = getStoredUsers();
+    // find user by email
+    const foundUser = users.find((u)=>u.email === credentials.email);
+    if(!foundUser){
+        throw new Error("No account found with this email. Please sign up first.");
+    }
+
+    // check password
+    if(foundUser.password !== credentials.password){
+        throw new Error("Incorrect password. Please try again.")
+    }
+
+    //Generate token and update auth state 
+    const user = {id:foundUser.id,name:foundUser.name,email:foundUser.email};
+    const token = fakeJWT(user);
+    localStorage.setItem(TOKEN_KEY,token);;
+    setAuthState({user,token,isAuthenticated:true});
+};
+
+//Logout  
+const logout =() =>{
+    localStorage.removeItem(TOKEN_KEY);
+    setAuthState({user:null, token:null,isAuthenticated:false});
+};
+return(
+    <AuthContext.Provider value={{...authState,login,signup,logout}}>{children}</AuthContext.Provider>
+)
+};
+export const useAuth = ():AuthContextType =>{
+    console.log(AuthContext);
+    const context = useContext(AuthContext);
+    if(!context) throw new Error("useAuth must be used within AuthProvider");
+    return context;
+}
