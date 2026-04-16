@@ -97,7 +97,7 @@ const signup =  async (credentials : SignupCredentials) : Promise<void> => {
     saveUsers(users);
 
     // Auto login after signup
-    const user = {id:newUser.id,name:newUser.name,email:newUser.email};
+    const user: User = {id:newUser.id,name:newUser.name,email:newUser.email};
     const token = fakeJWT(user);
     localStorage.setItem(TOKEN_KEY,token);
     setAuthState({user,token,isAuthenticated: true});
@@ -117,7 +117,7 @@ const login = async (credentials : LoginCredentials) : Promise<void> =>{
     }
 
     //Generate token and update auth state 
-    const user = {id:foundUser.id,name:foundUser.name,email:foundUser.email};
+    const user : User = {id:foundUser.id,name:foundUser.name,email:foundUser.email};
     const token = fakeJWT(user);
     localStorage.setItem(TOKEN_KEY,token);;
     setAuthState({user,token,isAuthenticated:true});

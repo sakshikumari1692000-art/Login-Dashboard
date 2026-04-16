@@ -512,6 +512,7 @@ const LoginPage = () => {
 
 export default LoginPage;
 
+
 step 10: Signup page 
 
 import { useState, FormEvent } from "react";
@@ -602,3 +603,12 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+
+// api 
+
+http://192.168.0.156:5001/api
+Admin Login Credentials:
+  Email:    admin@bookstore.com
+  Password: Admin@123
+
+  create a node restfull api backend for a bookstore admin dashboard, with jwt authentication cookies token, refresh token and accesstoken and relevent endpoints, login, forgot password, dashboard insights, products (books), orders, profile, use mongo db, express, export import module.

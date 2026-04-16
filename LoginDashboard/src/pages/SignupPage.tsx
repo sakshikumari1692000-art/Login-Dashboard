@@ -1,17 +1,114 @@
+import { useState } from "react";
+
 const SignupPage = () =>{
+    const [formData, setFormData] = useState({
+        username : "",
+        email : "",
+        password : "",
+        confirmPassword : ""
+    });
+    const [error, setError] = useState({
+        usernameErr : "",
+        emailErr : "",
+        passwordErr : "",
+        confirmPasswordErr : ""
+    });
+    const[successMsg, setSuccessMsg] = useState("");
+
+    const onChangeHandler = (e : any) =>{
+       setFormData(prev => ({...prev, [e.target.name] : e.target.value}));
+       setError(prev => ({...prev, [e.target.name + "Err"] : ""}))
+    }
+
+    // prev : previous state of formData, we spread it to keep all existing values and then update the specific field that changed using [e.target.name] as the key and e.target.value as the new value. This way, we can handle changes for all input fields with a single function.
+    // Rest operator (...) is used to create a new object that includes all the properties of the previous state (prev) and then we overwrite the specific error field corresponding to the input that changed by using [e.target.name + "Err"] as the key and setting it to an empty string. This ensures that when the user starts typing in an input field, any previous error message for that field is cleared.
+    
+    const submitHandler = (e : any) =>{
+        e.preventDefault();
+        console.log(formData);
+        
+        if(!formData.username){
+            setError({...error, usernameErr: "Please fill UserName"});
+        }else if (!formData.email){
+            setError({...error , emailErr : "Please fill Email"});
+        }else if (formData.password.length < 6) {
+            setError({...error,passwordErr:"Password must be at least 6 characters"});
+        }
+        else if(formData.password !== formData.confirmPassword){
+            setError({...error, confirmPasswordErr : "Passwords do not match"});
+        }
+
+        else{
+            setSuccessMsg("Signup successful! Please login to continue.");
+        }
+   }
+    
     return(
-        <div>
-        <h1>Book Store</h1>
-        <h2>Create Account</h2>
-        <p>Join Our BookStore Community</p>
-        <form>
-            <input type="text"  placeholder="UserName" />
-            <input type="email" placeholder="Email" />
-            <input type="password" placeholder="Password" />
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" />
-            <button type ="submit">SignUp</button>
-        </form>
-        </div>
+<div className="min-h-screen flex items-center justify-center bg-gray-100">
+  <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
+    
+    <h1 className="text-3xl font-bold text-center text-gray-800">
+      Book Store
+    </h1>
+
+    <h2 className="text-xl text-center text-gray-600 mt-2">
+      Create Account
+    </h2>
+
+    <p className="text-sm text-center text-gray-500 mb-6">
+      Join Our BookStore Community
+    </p>
+
+    <form onSubmit={submitHandler} className="space-y-4">
+      
+      <input
+        type="text"
+        name="username"
+        placeholder="UserName"
+        onChange={onChangeHandler}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {error && <p className="text-red-500" >{error.usernameErr}</p>}
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        onChange={onChangeHandler}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {error && <p className="text-red-500" >{error.emailErr}</p>}
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        onChange={onChangeHandler}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {error && <p className="text-red-500" >{error.passwordErr}</p>}
+
+      <input
+        type="password"
+        name="confirmPassword"
+        id="confirmPassword"
+        placeholder="Confirm Password"
+        onChange={onChangeHandler}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {error && <p className="text-red-500" >{error.confirmPasswordErr}</p>}
+
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200" 
+      >
+        SignUp
+      </button>
+      {successMsg && <p className="text-green-500" >{successMsg}</p>}
+    </form>
+
+  </div>
+</div>
     );
 }
 
