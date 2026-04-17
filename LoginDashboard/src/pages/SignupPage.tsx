@@ -1,17 +1,22 @@
 import { useState } from "react";
+import axiosInstance from "../api/axiosInstance";
 
 const SignupPage = () =>{
     const [formData, setFormData] = useState({
         username : "",
         email : "",
         password : "",
-        confirmPassword : ""
+        confirmPassword : "",
+        phone: "",
+        role: "admin", // default value
     });
     const [error, setError] = useState({
         usernameErr : "",
         emailErr : "",
         passwordErr : "",
-        confirmPasswordErr : ""
+        confirmPasswordErr : "",
+        phoneErr: "",
+        roleErr: ""
     });
     const[successMsg, setSuccessMsg] = useState("");
 
@@ -23,25 +28,40 @@ const SignupPage = () =>{
     // prev : previous state of formData, we spread it to keep all existing values and then update the specific field that changed using [e.target.name] as the key and e.target.value as the new value. This way, we can handle changes for all input fields with a single function.
     // Rest operator (...) is used to create a new object that includes all the properties of the previous state (prev) and then we overwrite the specific error field corresponding to the input that changed by using [e.target.name + "Err"] as the key and setting it to an empty string. This ensures that when the user starts typing in an input field, any previous error message for that field is cleared.
     
-    const submitHandler = (e : any) =>{
+    const submitHandler = async (e : any) =>{
         e.preventDefault();
         console.log(formData);
         
         if(!formData.username){
             setError({...error, usernameErr: "Please fill UserName"});
-        }else if (!formData.email){
+        } 
+        if (!formData.email){
             setError({...error , emailErr : "Please fill Email"});
-        }else if (formData.password.length < 6) {
+        } if (formData.password.length < 6) {
             setError({...error,passwordErr:"Password must be at least 6 characters"});
-        }
-        else if(formData.password !== formData.confirmPassword){
+        }     
+        if(formData.password !== formData.confirmPassword){
             setError({...error, confirmPasswordErr : "Passwords do not match"});
         }
-
-        else{
-            setSuccessMsg("Signup successful! Please login to continue.");
+        const payload = {
+            name : formData.username,
+            email : formData.email,
+            password : formData.password,
+            phone : formData.phone,
+            role : formData.role
         }
-   }
+        try{
+          const { data } = await axiosInstance.post("/auth/register", payload);
+          console.log("Response:", data);
+
+          if(data.success){
+            setSuccessMsg("Signup successful! Please login to continue.");
+            // navigate(" /login");
+          }
+        }catch(err: any){
+          setError(prev => ({...prev, ...err.response?.data?.errors}));
+        }
+   };
     
     return(
 <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -97,6 +117,25 @@ const SignupPage = () =>{
         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       {error && <p className="text-red-500" >{error.confirmPasswordErr}</p>}
+
+      <input
+        type="tel"
+        name="phone"
+        placeholder="Phone Number"
+        onChange={onChangeHandler}
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {error && <p className="text-red-500" >{error.phoneErr}</p>}
+       
+      <select
+      name="role"
+      value={formData.role}
+      onChange={onChangeHandler}
+      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="admin">Admin</option>
+      <option value="staff">Staff</option>
+    </select>
 
       <button
         type="submit"

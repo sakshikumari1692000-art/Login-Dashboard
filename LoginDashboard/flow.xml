@@ -612,3 +612,37 @@ Admin Login Credentials:
   Password: Admin@123
 
   create a node restfull api backend for a bookstore admin dashboard, with jwt authentication cookies token, refresh token and accesstoken and relevent endpoints, login, forgot password, dashboard insights, products (books), orders, profile, use mongo db, express, export import module.
+
+
+   name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+      maxlength: [100, 'Name cannot exceed 100 characters'],
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      minlength: [6, 'Password must be at least 6 characters'],
+    },
+    role: {
+      type: String,
+      enum: ['admin', 'staff'],
+      default: 'admin',
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
